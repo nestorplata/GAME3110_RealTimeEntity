@@ -4,6 +4,7 @@ using Unity.Collections;
 using Unity.Networking.Transport;
 using System.Text;
 using System.Collections.Generic;
+using System.Linq;
 
 public class NetworkServer : MonoBehaviour
 {
@@ -174,6 +175,11 @@ public class NetworkServer : MonoBehaviour
         buffer.Dispose();
     }
 
+    public int FindMainPlayer()
+    {
+        return connectionToIDLookup[networkConnections.First()];
+    }
+
 }
 
 public enum TransportPipeline
@@ -182,3 +188,4 @@ public enum TransportPipeline
     ReliableAndInOrder,
     FireAndForget
 }
+
