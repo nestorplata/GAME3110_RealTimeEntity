@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
+
 public class GameLogic : MonoBehaviour
 {
     
@@ -9,15 +11,26 @@ public class GameLogic : MonoBehaviour
     {
         NetworkServerProcessing.SetGameLogic(this);
     }
-
-    public void OnPoppedBallon(Vector2 BallonPos, int RecieverID)
+    void Update()
     {
-        SendMessageToClient(ServerToClientSignifiers.OtherBallonPopped, BallonPos);
+        if (Input.GetKeyDown(KeyCode.A))
+            OnGettingScreen(0, 0);
     }
 
-    public void OnSpawnedBallon(Vector2 BallonPos, int RecieverID)
+    public void OnPoppedBallon(string BallonID, List<int> RecieverIDs)
     {
-        SendMessageToClient(ServerToClientSignifiers.OtherBallonSpawned, BallonPos);
+        foreach (var ID in RecieverIDs)
+        {
+            SendMessageToClient(ServerToClientSignifiers.OtherBallonSpawned, BallonID, ID);
+        }
+    }
+
+    public void OnSpawnedBallon(Vector2 BallonPos, List<int> RecieverIDs)
+    {
+        foreach(var ID in RecieverIDs)
+        {
+            SendMessageToClient(ServerToClientSignifiers.OtherBallonSpawned, BallonPos, ID);
+        }
     }
 
     public void OnGettingScreen(int dataID, int RecieverID)
@@ -35,9 +48,14 @@ public class GameLogic : MonoBehaviour
         NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.SettingMainPlayer+"", RecieverID, TransportPipeline.ReliableAndInOrder);
     }
 
-    public void SendMessageToClient(int signifier, Vector2 pos, int ID=0)
+    public void SendMessageToClient(int signifier, Vector2 pos, int ID)
     {
         NetworkServerProcessing.SendMessageToClient(signifier + "," + pos.x + "_" + pos.y,ID,  TransportPipeline.ReliableAndInOrder);
+    }
+
+    public void SendMessageToClient(int signifier, string message, int ID = 0)
+    {
+        NetworkServerProcessing.SendMessageToClient(signifier + "," + message, ID, TransportPipeline.ReliableAndInOrder);
     }
 
 

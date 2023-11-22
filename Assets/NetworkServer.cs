@@ -5,6 +5,8 @@ using Unity.Networking.Transport;
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
+using Unity.VisualScripting;
 
 public class NetworkServer : MonoBehaviour
 {
@@ -175,9 +177,28 @@ public class NetworkServer : MonoBehaviour
         buffer.Dispose();
     }
 
+
+
     public int FindMainPlayer()
     {
-        return connectionToIDLookup[networkConnections.First()];
+        return connectionToIDLookup[networkConnections[0]];
+    }
+    public int GetNetworkCount()
+    {
+        return connectionToIDLookup.Count;
+    }
+
+    public List<int> GetAllDiffentIDs(int ID)
+    {
+        List<int> IDs = new List<int>();
+        foreach (var Nconnection in networkConnections)
+        {
+            if(ID != connectionToIDLookup[Nconnection])
+            {
+                IDs.Add(connectionToIDLookup[Nconnection]);
+            }
+        }
+        return IDs;
     }
 
 }

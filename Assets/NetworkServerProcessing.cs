@@ -10,40 +10,32 @@ static public class NetworkServerProcessing
     #region Send and Receive Data Functions
     static public void ReceivedMessageFromClient(string msg, int clientConnectionID, TransportPipeline pipeline)
     {
-        Debug.Log("Network msg received =  " + msg + ", from pipeline = " + pipeline);
         string[] csv = msg.Split(',');
         int signifier = int.Parse(csv[0]);
 
-        if(signifier != ClientToServerSignifiers.SendingScreen)
+
+        switch (signifier)
         {
-            string[] pos = csv[1].Split('_');
-            Vector2 Ballonpos = new Vector2(float.Parse(pos[0]), float.Parse(pos[1]));
-            switch (signifier)
-            {
-                case ClientToServerSignifiers.BallonSpawned:
-                    gameLogic.OnSpawnedBallon(Ballonpos, clientConnectionID);
-                    break;
-                case ClientToServerSignifiers.BallonPopped:
-                    gameLogic.OnPoppedBallon(Ballonpos, clientConnectionID);
-                    break;
-
-            }
+            case ClientToServerSignifiers.BallonSpawned:
+                string[] pos = csv[1].Split('_');
+                Vector2 Ballonpos = new Vector2(float.Parse(pos[0]), float.Parse(pos[1]));
+                gameLogic.OnSpawnedBallon(Ballonpos, networkServer.GetAllDiffentIDs(clientConnectionID));
+                break;
+            case ClientToServerSignifiers.BallonPopped:
+                gameLogic.OnPoppedBallon(csv[1], networkServer.GetAllDiffentIDs(clientConnectionID));
+                break;
+            case ClientToServerSignifiers.SendingScreen:
+                Debug.Log("Network msg received =  " + msg + ", from pipeline = " + pipeline);
+                gameLogic.OnScreenRecieved(csv[2], int.Parse(csv[1])); 
+                break;
         }
-        else
-        {
-
-            gameLogic.OnScreenRecieved(csv[2], int.Parse(csv[1]));
-
-        }
-
-
-
 
     }
     static public void SendMessageToClient(string msg, int clientConnectionID, TransportPipeline pipeline)
     {
         networkServer.SendMessageToClient(msg, clientConnectionID, pipeline);
     }
+
 
     #endregion
 
@@ -65,9 +57,10 @@ static public class NetworkServerProcessing
     static public void DisconnectionEvent(int clientConnectionID)
     {
         Debug.Log("Client disconnection, ID == " + clientConnectionID);
-
-        gameLogic.SettingMainPlayer(networkServer.FindMainPlayer());
-
+        if(networkServer.GetNetworkCount()>0)
+        {
+            gameLogic.SettingMainPlayer(networkServer.FindMainPlayer());
+        }
     }
 
     #endregion
