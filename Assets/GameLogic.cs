@@ -13,16 +13,9 @@ public class GameLogic : MonoBehaviour
     }
     void Update()
     {
+        //testing
         if (Input.GetKeyDown(KeyCode.A))
             OnGettingScreen(0, 0);
-    }
-
-    public void OnPoppedBallon(string BallonID, List<int> RecieverIDs)
-    {
-        foreach (var ID in RecieverIDs)
-        {
-            SendMessageToClient(ServerToClientSignifiers.OtherBallonSpawned, BallonID, ID);
-        }
     }
 
     public void OnSpawnedBallon(Vector2 BallonPos, List<int> RecieverIDs)
@@ -32,20 +25,29 @@ public class GameLogic : MonoBehaviour
             SendMessageToClient(ServerToClientSignifiers.OtherBallonSpawned, BallonPos, ID);
         }
     }
+    public void OnPoppedBallon(string BallonID, List<int> RecieverIDs)
+    {
+        foreach (var ID in RecieverIDs)
+        {
+            SendMessageToClient(ServerToClientSignifiers.OtherBallonPopped, BallonID, ID);
+        }
+    }
+
+    //Toogle new player Connection
+    public void OnScreenRecieved(string BallonsData, int RecieverID)
+    {
+        SendMessageToClient(ServerToClientSignifiers.SettingScreen, BallonsData, RecieverID);
+    }
 
     public void OnGettingScreen(int dataID, int RecieverID)
     {
-        NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.GettingScreen+","+dataID, RecieverID, TransportPipeline.ReliableAndInOrder);
-
+        SendMessageToClient(ServerToClientSignifiers.GettingScreen, dataID+"", RecieverID);
     }
 
-    public void OnScreenRecieved(string BallonsData, int RecieverID)
-    {
-        NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.SettingScreen + "," + BallonsData, RecieverID, TransportPipeline.ReliableAndInOrder);
-    }
+
     internal void SettingMainPlayer(int RecieverID)
     {
-        NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.SettingMainPlayer+"", RecieverID, TransportPipeline.ReliableAndInOrder);
+        SendMessageToClient(ServerToClientSignifiers.SettingMainPlayer, "", RecieverID);
     }
 
     public void SendMessageToClient(int signifier, Vector2 pos, int ID)
